@@ -7,6 +7,7 @@
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"lint": "eslint . && stylelint \"**/*.css\"",
+		"lint:fix": "eslint . --fix && stylelint \"**/*.css\" --fix",
 		"format": "prettier --write .",
 		"test": "vitest",
 		"test:run": "vitest run",
