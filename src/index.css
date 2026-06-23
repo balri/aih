@@ -113,10 +113,11 @@ ul {
 	line-height: 1.8;
 }
 
-@media (max-width: 800px) {
+@media (width <= 800px) {
 	.cards {
 		grid-template-columns: 1fr;
 	}
+
 	.hero h1 {
 		font-size: 34px;
 	}
