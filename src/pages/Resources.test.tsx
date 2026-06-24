@@ -21,19 +21,19 @@ describe("Resources", () => {
 		const expected = [
 			{
 				label: "Classification Framework Design Guide (PDF)",
-				href: "/resources/classification-framework",
+				href: "/resources/classification-framework-design-guide",
 			},
 			{
 				label: "Information Governance Maturity Model",
-				href: "/resources/governance-maturity-model",
+				href: "/resources/information-governance-maturity-model",
 			},
 			{
 				label: "Analytical Methodologies Review",
-				href: "/resources/analytical-methodologies",
+				href: "/resources/analytical-methodologies-review",
 			},
 			{
 				label: "Historical Perspectives on Information Management",
-				href: "/resources/historical-perspectives",
+				href: "/resources/historical-perspectives-on-information-management",
 			},
 		];
 		for (const { label, href } of expected) {

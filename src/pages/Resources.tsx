@@ -3,19 +3,19 @@ import { Link } from "react-router-dom";
 const items = [
 	{
 		label: "Classification Framework Design Guide (PDF)",
-		slug: "/resources/classification-framework",
+		slug: "/resources/classification-framework-design-guide",
 	},
 	{
 		label: "Information Governance Maturity Model",
-		slug: "/resources/governance-maturity-model",
+		slug: "/resources/information-governance-maturity-model",
 	},
 	{
 		label: "Analytical Methodologies Review",
-		slug: "/resources/analytical-methodologies",
+		slug: "/resources/analytical-methodologies-review",
 	},
 	{
 		label: "Historical Perspectives on Information Management",
-		slug: "/resources/historical-perspectives",
+		slug: "/resources/historical-perspectives-on-information-management",
 	},
 ];
 

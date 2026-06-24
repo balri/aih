@@ -14,6 +14,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Accessibility from "./pages/Accessibility";
 import RestrictedResource from "./pages/RestrictedResource";
+import NewsSymposium from "./pages/NewsSymposium";
 
 export default function App() {
 	return (
@@ -33,6 +34,7 @@ export default function App() {
 					<Route path="/privacy" element={<Privacy />} />
 					<Route path="/terms" element={<Terms />} />
 					<Route path="/accessibility" element={<Accessibility />} />
+					<Route path="/news/symposium" element={<NewsSymposium />} />
 					<Route
 						path="/news/:slug"
 						element={<RestrictedResource />}
