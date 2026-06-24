@@ -135,6 +135,10 @@ ul {
 }
 
 @media (width <= 800px) {
+	.wrap {
+		padding: 0 24px;
+	}
+
 	.cards {
 		grid-template-columns: 1fr;
 	}
