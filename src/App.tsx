@@ -34,7 +34,10 @@ export default function App() {
 					<Route path="/privacy" element={<Privacy />} />
 					<Route path="/terms" element={<Terms />} />
 					<Route path="/accessibility" element={<Accessibility />} />
-					<Route path="/news/symposium" element={<NewsSymposium />} />
+					<Route
+						path="/news/press-release-annual-symposium-2026"
+						element={<NewsSymposium />}
+					/>
 					<Route
 						path="/news/:slug"
 						element={<RestrictedResource />}
