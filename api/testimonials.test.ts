@@ -31,7 +31,7 @@ describe("GET /api/testimonials", () => {
 		const res = await handler();
 
 		expect(await res.json()).toEqual([{ name: "Jane Doe", rating: 5 }]);
-		expect(res.headers.get("cache-control")).toContain("s-maxage=300");
+		expect(res.headers.get("cache-control")).toContain("s-maxage=86400");
 	});
 
 	it("falls back to an empty, briefly-cached list when the upstream feed fails", async () => {

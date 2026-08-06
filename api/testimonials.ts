@@ -6,7 +6,7 @@ type Testimonial = {
 	testimonial?: string;
 };
 
-const FRESH = "public, s-maxage=300, stale-while-revalidate=3600";
+const FRESH = "public, s-maxage=86400, stale-while-revalidate=604800";
 const EMPTY = "public, s-maxage=60";
 
 export default async function handler(): Promise<Response> {
