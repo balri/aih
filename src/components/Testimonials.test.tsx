@@ -2,20 +2,27 @@ import { render, screen, waitFor } from "@testing-library/react";
 
 describe("Testimonials", () => {
 	afterEach(() => {
-		vi.unstubAllEnvs();
 		vi.unstubAllGlobals();
 		vi.resetModules();
 	});
 
-	it("renders nothing when no endpoint is configured", async () => {
-		vi.stubEnv("VITE_TESTIMONIALS_ENDPOINT", "");
+	it("renders nothing when the feed has no approved testimonials", async () => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue({ ok: true, json: async () => [] }),
+		);
 		const { default: Testimonials } = await import("./Testimonials");
-		const { container } = render(<Testimonials />);
-		expect(container).toBeEmptyDOMElement();
+		render(<Testimonials />);
+
+		await waitFor(() =>
+			expect(screen.queryByRole("status")).not.toBeInTheDocument(),
+		);
+		expect(
+			screen.queryByText("What People Are Saying"),
+		).not.toBeInTheDocument();
 	});
 
 	it("shows a loading indicator while the feed is fetching", async () => {
-		vi.stubEnv("VITE_TESTIMONIALS_ENDPOINT", "https://example.com/exec");
 		let resolveFetch: (value: unknown) => void = () => {};
 		vi.stubGlobal(
 			"fetch",
@@ -38,7 +45,6 @@ describe("Testimonials", () => {
 	});
 
 	it("renders approved testimonials from the configured endpoint", async () => {
-		vi.stubEnv("VITE_TESTIMONIALS_ENDPOINT", "https://example.com/exec");
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue({

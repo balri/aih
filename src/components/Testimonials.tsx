@@ -1,38 +1,22 @@
 import { useEffect, useState } from "react";
-
-type Testimonial = {
-	name: string;
-	rating: number;
-	testimonial?: string;
-};
+import { fetchTestimonials } from "../lib/testimonials";
+import type { Testimonial } from "../lib/testimonials";
 
 function starRating(rating: number) {
 	const filled = Math.min(5, Math.max(0, Math.round(rating)));
 	return "★".repeat(filled) + "☆".repeat(5 - filled);
 }
 
-const endpoint = import.meta.env.VITE_TESTIMONIALS_ENDPOINT;
-
 export default function Testimonials() {
 	const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-	const [loading, setLoading] = useState(Boolean(endpoint));
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		if (!endpoint) return;
-
 		let cancelled = false;
 
-		fetch(endpoint)
-			.then((res) =>
-				res.ok
-					? res.json()
-					: Promise.reject(new Error(String(res.status))),
-			)
-			.then((data: Testimonial[]) => {
+		fetchTestimonials()
+			.then((data) => {
 				if (!cancelled) setTestimonials(data ?? []);
-			})
-			.catch(() => {
-				// No public testimonials if the feed is unreachable or misconfigured.
 			})
 			.finally(() => {
 				if (!cancelled) setLoading(false);
@@ -42,10 +26,6 @@ export default function Testimonials() {
 			cancelled = true;
 		};
 	}, []);
-
-	if (!endpoint) {
-		return null;
-	}
 
 	if (loading) {
 		return (
