@@ -120,6 +120,49 @@ footer {
 	text-align: center;
 }
 
+.testimonial {
+	margin: 0;
+}
+
+.testimonial p {
+	font-style: italic;
+}
+
+.testimonial .rating {
+	color: var(--accent);
+	font-size: 20px;
+	letter-spacing: 2px;
+	font-style: normal;
+	margin: 0 0 8px;
+}
+
+.testimonial cite {
+	display: block;
+	margin-top: 12px;
+	font-style: italic;
+}
+
+.spinner {
+	width: 32px;
+	height: 32px;
+	border: 3px solid #dbe3ea;
+	border-top-color: var(--accent);
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.spinner {
+		animation: none;
+	}
+}
+
 img.team {
 	width: 100%;
 	border-radius: 8px;
