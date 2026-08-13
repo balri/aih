@@ -13,7 +13,7 @@ export default async function handler(req: Request): Promise<Response> {
 	let res: Response | undefined;
 	for (let attempt = 0; attempt < 2 && !res?.ok; attempt++) {
 		try {
-			res = await fetch(endpoint, { signal: AbortSignal.timeout(25000) });
+			res = await fetch(endpoint, { signal: AbortSignal.timeout(12500) });
 		} catch {
 			// transient failure (timeout/network) — fall through to retry or give up
 		}
