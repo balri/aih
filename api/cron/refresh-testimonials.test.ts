@@ -46,6 +46,29 @@ describe("GET /api/cron/refresh-testimonials", () => {
 		expect(res.status).toBe(502);
 	});
 
+	it("retries the upstream fetch once before succeeding", async () => {
+		process.env.CRON_SECRET = "expected-secret";
+		process.env.TESTIMONIALS_ENDPOINT = "https://example.com/exec";
+		process.env.EDGE_CONFIG_ID = "ecfg_test";
+		process.env.VERCEL_API_TOKEN = "vercel-token";
+		let upstreamCalls = 0;
+		const fetchMock = vi.fn(async (url) => {
+			if (url === process.env.TESTIMONIALS_ENDPOINT) {
+				upstreamCalls++;
+				if (upstreamCalls === 1) throw new Error("network blip");
+				return { ok: true, json: async () => [] };
+			}
+			return { ok: true };
+		});
+		vi.stubGlobal("fetch", fetchMock);
+		const { default: handler } = await import("./refresh-testimonials");
+
+		const res = await handler(buildRequest("expected-secret"));
+
+		expect(res.status).toBe(200);
+		expect(upstreamCalls).toBe(2);
+	});
+
 	it("writes the feed to Edge Config on success", async () => {
 		process.env.CRON_SECRET = "expected-secret";
 		process.env.TESTIMONIALS_ENDPOINT = "https://example.com/exec";

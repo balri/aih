@@ -1,4 +1,4 @@
-export const config = { runtime: "edge" };
+export const config = { runtime: "edge", maxDuration: 60 };
 
 export default async function handler(req: Request): Promise<Response> {
 	if (
@@ -10,8 +10,19 @@ export default async function handler(req: Request): Promise<Response> {
 	const endpoint = process.env.TESTIMONIALS_ENDPOINT;
 	if (!endpoint) return new Response("Missing endpoint", { status: 500 });
 
-	const res = await fetch(endpoint, { signal: AbortSignal.timeout(45000) });
-	if (!res.ok) return new Response(`Upstream ${res.status}`, { status: 502 });
+	let res: Response | undefined;
+	for (let attempt = 0; attempt < 2 && !res?.ok; attempt++) {
+		try {
+			res = await fetch(endpoint, { signal: AbortSignal.timeout(25000) });
+		} catch {
+			// transient failure (timeout/network) — fall through to retry or give up
+		}
+	}
+	if (!res?.ok) {
+		return new Response(`Upstream ${res?.status ?? "unreachable"}`, {
+			status: 502,
+		});
+	}
 	const data = await res.json();
 
 	const update = await fetch(
