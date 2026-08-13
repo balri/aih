@@ -95,7 +95,7 @@ describe("GET /api/cron/refresh-testimonials", () => {
 			if (url === process.env.TESTIMONIALS_ENDPOINT) {
 				return { ok: true, json: async () => [] };
 			}
-			return { ok: false };
+			return { ok: false, status: 403, text: async () => "Forbidden" };
 		});
 		vi.stubGlobal("fetch", fetchMock);
 		const { default: handler } = await import("./refresh-testimonials");

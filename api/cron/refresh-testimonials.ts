@@ -30,7 +30,15 @@ export default async function handler(req: Request): Promise<Response> {
 		},
 	);
 
-	return update.ok
-		? new Response("OK")
-		: new Response("Edge Config write failed", { status: 500 });
+	if (!update.ok) {
+		const detail = await update.text();
+		return new Response(
+			`Edge Config write failed (${update.status}): ${detail}`,
+			{
+				status: 500,
+			},
+		);
+	}
+
+	return new Response("OK");
 }
