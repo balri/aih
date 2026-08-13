@@ -1,7 +1,7 @@
 const getMock = vi.fn();
 
-vi.mock("@vercel/edge-config", () => ({
-	createClient: () => ({ get: getMock }),
+vi.mock("@vercel/global-config", () => ({
+	get: getMock,
 }));
 
 describe("GET /api/testimonials", () => {
