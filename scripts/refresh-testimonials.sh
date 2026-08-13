@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENDPOINT="https://aih-rose.vercel.app/api/testimonials"
+ENDPOINT="https://aih-rose.vercel.app/api/cron/refresh-testimonials"
 
 start=$(date +%s)
 body=$(mktemp)
@@ -13,7 +13,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-status=$(curl -Ls -o "$body" -w "%{http_code}" "$ENDPOINT")
+status=$(curl -Ls -o "$body" -w "%{http_code}" -H "Authorization: Bearer $CRON_SECRET" "$ENDPOINT")
 
 if [ "$status" -eq 200 ]; then
   echo "Testimonials: $(cat "$body")"
