@@ -32,9 +32,32 @@ describe("GET /api/cron/refresh-testimonials", () => {
 		expect(res.status).toBe(500);
 	});
 
+	it.each([undefined, "not-an-edge-config-id"])(
+		"fails clearly when EDGE_CONFIG_ID is missing or invalid (%s)",
+		async (edgeConfigId) => {
+			process.env.CRON_SECRET = "expected-secret";
+			process.env.TESTIMONIALS_ENDPOINT = "https://example.com/exec";
+			if (edgeConfigId) {
+				process.env.EDGE_CONFIG_ID = edgeConfigId;
+			} else {
+				delete process.env.EDGE_CONFIG_ID;
+			}
+			const fetchMock = vi.fn();
+			vi.stubGlobal("fetch", fetchMock);
+			const { default: handler } = await import("./refresh-testimonials");
+
+			const res = await handler(buildRequest("expected-secret"));
+
+			expect(res.status).toBe(500);
+			expect(await res.text()).toBe("Missing or invalid EDGE_CONFIG_ID");
+			expect(fetchMock).not.toHaveBeenCalled();
+		},
+	);
+
 	it("fails when the upstream feed errors", async () => {
 		process.env.CRON_SECRET = "expected-secret";
 		process.env.TESTIMONIALS_ENDPOINT = "https://example.com/exec";
+		process.env.EDGE_CONFIG_ID = "ecfg_test";
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue({ ok: false, status: 500 }),
@@ -58,7 +81,7 @@ describe("GET /api/cron/refresh-testimonials", () => {
 				if (upstreamCalls === 1) throw new Error("network blip");
 				return { ok: true, json: async () => [] };
 			}
-			return { ok: true };
+			return { ok: true, json: async () => [] };
 		});
 		vi.stubGlobal("fetch", fetchMock);
 		const { default: handler } = await import("./refresh-testimonials");
@@ -81,6 +104,9 @@ describe("GET /api/cron/refresh-testimonials", () => {
 					json: async () => [{ name: "Jane Doe", rating: 5 }],
 				};
 			}
+			if (url.endsWith("/items")) {
+				return { ok: true, json: async () => [] };
+			}
 			return { ok: true };
 		});
 		vi.stubGlobal("fetch", fetchMock);
@@ -90,7 +116,7 @@ describe("GET /api/cron/refresh-testimonials", () => {
 
 		expect(res.status).toBe(200);
 		expect(fetchMock).toHaveBeenLastCalledWith(
-			"https://api.vercel.com/v1/edge-config/ecfg_test/items",
+			"https://api.vercel.com/v1/global-config/ecfg_test/items",
 			expect.objectContaining({
 				method: "PATCH",
 				headers: expect.objectContaining({
@@ -109,13 +135,49 @@ describe("GET /api/cron/refresh-testimonials", () => {
 		);
 	});
 
+	it("does not write the feed when Edge Config already has the same value", async () => {
+		process.env.CRON_SECRET = "expected-secret";
+		process.env.TESTIMONIALS_ENDPOINT = "https://example.com/exec";
+		process.env.EDGE_CONFIG_ID = "ecfg_test";
+		process.env.VERCEL_API_TOKEN = "vercel-token";
+		const feed = [{ name: "Jane Doe", rating: 5 }];
+		const fetchMock = vi.fn(async (url) => {
+			if (url === process.env.TESTIMONIALS_ENDPOINT) {
+				return { ok: true, json: async () => feed };
+			}
+			return {
+				ok: true,
+				json: async () => [
+					{
+						key: "testimonials",
+						value: [{ rating: 5, name: "Jane Doe" }],
+					},
+				],
+			};
+		});
+		vi.stubGlobal("fetch", fetchMock);
+		const { default: handler } = await import("./refresh-testimonials");
+
+		const res = await handler(buildRequest("expected-secret"));
+
+		expect(res.status).toBe(200);
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+		expect(fetchMock).toHaveBeenLastCalledWith(
+			"https://api.vercel.com/v1/global-config/ecfg_test/items",
+			{ headers: { Authorization: "Bearer vercel-token" } },
+		);
+	});
+
 	it("fails when the Edge Config write fails", async () => {
 		process.env.CRON_SECRET = "expected-secret";
 		process.env.TESTIMONIALS_ENDPOINT = "https://example.com/exec";
 		process.env.EDGE_CONFIG_ID = "ecfg_test";
 		process.env.VERCEL_API_TOKEN = "vercel-token";
-		const fetchMock = vi.fn(async (url) => {
+		const fetchMock = vi.fn(async (url, init) => {
 			if (url === process.env.TESTIMONIALS_ENDPOINT) {
+				return { ok: true, json: async () => [] };
+			}
+			if (init?.method !== "PATCH") {
 				return { ok: true, json: async () => [] };
 			}
 			return { ok: false, status: 403, text: async () => "Forbidden" };
