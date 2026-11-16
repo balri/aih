@@ -5,10 +5,11 @@
 			"destination": "/index.html"
 		}
 	],
-	"crons": [
-		{
+	"schedules": {
+		"refresh-testimonials": {
+			"schedule": "0 6 * * *",
 			"path": "/api/cron/refresh-testimonials",
-			"schedule": "0 6 * * *"
+			"requestMethod": "GET"
 		}
-	]
+	}
 }
